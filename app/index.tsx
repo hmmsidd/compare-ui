@@ -1,104 +1,96 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { FlatList } from 'react-native';
+import {
+  GluestackUIProvider,
+  config,
+  Box,
+  Text,
+  Input,
+  Button,
+  VStack,
+  HStack,
+  IconButton,
+  Icon,
+  Divider,
+} from '@gluestack-ui/themed';
+import { TrashIcon } from 'lucide-react-native';
 
 export default function App() {
   const [task, setTask] = useState('');
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<string[]>([]); // <-- This will work if TS is set up correctly
 
   const addTask = () => {
     if (task.trim()) {
-      setTasks([...tasks, task]);
+      setTasks((prev) => [...prev, task]);
       setTask('');
     }
   };
 
   const deleteTask = (index: number) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+    const updated = tasks.filter((_, i) => i !== index);
+    setTasks(updated);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>📝 My To-Do List</Text>
+    <GluestackUIProvider config={config}>
+      <Box flex={1} bg="$coolGray100" p="$4" pt="$10">
+       
+        <Text fontSize={24} fontWeight="bold" mb={16}>
+          📝 My To-Do List
+        </Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter a task..."
-          value={task}
-          onChangeText={setTask}
+        }
+        <HStack space="sm" mb="$4">
+          <Input
+            flex={1}
+            placeholder="Enter task..."
+            value={task}
+            onChangeText={setTask}
+          />
+          <Button onPress={addTask}>
+            <Button>Add</Button>
+          </Button>
+        </HStack>
+
+       
+        <FlatList
+          data={tasks}
+          keyExtractor={(_, index) => index.toString()}
+          ListEmptyComponent={
+            <Text color="$coolGray600" textAlign="center" mt="$8">
+              No tasks yet. Add your first one! ✨
+            </Text>
+          }
+          renderItem={({ item, index }) => (
+            <Box
+              bg="$white"
+              p="$3"
+              mb="$3"
+              rounded="$md"
+              borderWidth={1}
+              borderColor="$coolGray300"
+              shadowColor="$black"
+              shadowOpacity={0.05}
+              shadowRadius={4}
+            >
+              <HStack justifyContent="space-between" alignItems="center">
+                <Text fontSize="$md">{item}</Text>
+                <IconButton
+                  icon={<Icon as={TrashIcon} color="$red600" size="md" />}
+                  onPress={() => deleteTask(index)}
+                  variant="ghost"
+                />
+              </HStack>
+            </Box>
+          )}
         />
-        <TouchableOpacity style={styles.addButton} onPress={addTask}>
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
-      </View>
 
-      <FlatList
-        data={tasks}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <View style={styles.taskItem}>
-            <Text style={styles.taskText}>{item}</Text>
-            <TouchableOpacity onPress={() => deleteTask(index)}>
-              <Text style={styles.deleteButton}>❌</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-    </View>
+      
+        <Divider my="$3" />
+        <Text textAlign="center" mt="auto" color="$gray600" fontStyle="italic">
+          “Doing your daily goals makes you one step ahead.” 🚀
+        </Text>
+      </Box>
+    </GluestackUIProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 24,
-    paddingTop: 60,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    marginBottom: 24,
-  },
-  input: {
-    flex: 1,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  addButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginLeft: 8,
-    borderRadius: 6,
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  taskItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#f0f0f0',
-    padding: 12,
-    borderRadius: 6,
-    marginBottom: 10,
-  },
-  taskText: {
-    fontSize: 16,
-  },
-  deleteButton: {
-    color: '#ff4444',
-    fontSize: 18,
-  },
-});
-
